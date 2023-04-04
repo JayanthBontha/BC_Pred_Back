@@ -13,7 +13,7 @@ const authenticator = mongoose.Schema({
     date: {
         type: Date,
         required: true
-     }
+    }
 })
 
 module.exports = mongoose.model("sesh", authenticator, "cur_sesh");

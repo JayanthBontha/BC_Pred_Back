@@ -17,6 +17,19 @@ app.use(cors());
 mongoose.set('strictQuery', false);
 mongoose.connect(process.env.CONNECTION_STRING, { useNewUrlParser: true });
 
+
+let transporter = nodemailer.createTransport({
+    service:'gmail',
+    auth: {
+        user: 'bc.predict@gmail.com',
+        pass: 'xqfrpccrckwgcipp'
+    },
+    tls:{
+        rejectUnauthorized:false
+    }
+});
+
+
 function check(request_ip, public_mfa) {
     return new Promise((resolve) => {
         if (public_mfa == null) {
@@ -67,7 +80,7 @@ function is_Email(email_phone) {
 
 app.post('/login', (req, res) => {
     if (is_Email(req.body.email_phone)) {
-        User.exists({ email: req.body.email }).then(boule => {
+        User.exists({ email: req.body.email_phone }).then(boule => {
             if (boule) {
                 User.find({ email: req.body.email_phone, pass: req.body.pass }).then(temp => {
                     if (temp.length == 0) {
@@ -134,21 +147,49 @@ app.post('/login', (req, res) => {
 
 app.post('/signUp', (req, res) => {
     if (is_Email(req.body.email_phone)) {
+        // User.exists({ email: req.body.email_phone }).then(boule => {
+        //     if (boule == null) {
+        //         const new_pass = generateRandomNumber();
+        //         let transporter = nodemailer.createTransport({
+        //             host: 'smtp.elasticemail.com',
+        //             port: 2525,
+        //             secure: false,
+        //             auth: {
+        //                 user: 'goglepixstoar@gmail.com',
+        //                 pass: '12EFEA58156C713AD256A110518A89636C02'
+        //             }
+        //         });
+
+        //         let mailOptions = {
+        //             from: '"Breast Cancer Prediction" <goglepixstoar@gmail.com>',
+        //             to: req.body.email_phone,
+        //             subject: 'Account Creation',
+        //             text: "You have recently created an account with us.\nYour Verification OTP is " + new_pass + "\nIf you haven't made an account please contact site administrator."
+        //         };
+
+        //         transporter.sendMail(mailOptions, (error, info) => {
+        //             if (error) {
+        //                 console.log(error);
+        //                 res.json({ code: 'wrong_email' })
+        //             }
+        //             else {
+        //                 otp.create({ email: req.body.email_phone, otp: new_pass, flag: false, name: req.body.name, insti: req.body.insti, role: req.body.role }).then(val => {
+        //                     res.json({ code: 'successful_email', temp: val._id });
+        //                 });
+        //             }
+        //         })
+        //     }
+
+        //     else {
+        //         return res.json({ code: "email_exists" });
+        //     }
+        // });
         User.exists({ email: req.body.email_phone }).then(boule => {
             if (boule == null) {
                 const new_pass = generateRandomNumber();
-                let transporter = nodemailer.createTransport({
-                    host: 'smtp.elasticemail.com',
-                    port: 2525,
-                    secure: false,
-                    auth: {
-                        user: 'goglepixstoar@gmail.com',
-                        pass: '12EFEA58156C713AD256A110518A89636C02'
-                    }
-                });
 
                 let mailOptions = {
-                    from: '"Breast Cancer Prediction" <goglepixstoar@gmail.com>',
+                    from: '"Breast Cancer Prediction" <bc.predict@gmail.com>',
                     to: req.body.email_phone,
                     subject: 'Account Creation',
                     text: "You have recently created an account with us.\nYour Verification OTP is " + new_pass + "\nIf you haven't made an account please contact site administrator."
@@ -230,13 +271,13 @@ app.post('/last', (req, res) => {
             otp.findById(req.body.temp).then(val => {
                 if (val.email != null) {
                     User.create({ email: val.email, name: val.name, insti: val.insti, role: val.role, pass: req.body.pass }).then(val1 => {
-                        otp.deleteOne({ _id: req.body.temp });
+                        otp.deleteOne({ _id: req.body.temp }).catch(err => console.log(err));
                         return res.json({ code: "successful_signup" });
                     });
                 }
                 else {
                     User.create({ phone: val.phone, name: val.name, insti: val.insti, role: val.role, pass: req.body.pass }).then(val1 => {
-                        otp.deleteOne({ _id: req.body.temp });
+                        otp.deleteOne({ _id: req.body.temp }).catch(err => console.log(err));
                         return res.json({ code: "successful_signup" });
                     });
                 }
@@ -244,6 +285,7 @@ app.post('/last', (req, res) => {
         }
     });
 });
+
 
 
 

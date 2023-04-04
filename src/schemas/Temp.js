@@ -29,6 +29,11 @@ const ott = mongoose.Schema({
         type: Boolean,
         default: false,
         required: true
+    },
+    expireAt: {
+        type:Date,
+        default: Date.now,
+        index:{expires: '2m'}
     }
 })
 
