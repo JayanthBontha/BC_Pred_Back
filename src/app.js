@@ -73,7 +73,7 @@ function check(request_ip, public_mfa) {
             resolve(null);
             console.log('null')
         }
-        Sesh.findById(public_mfa).then(val => {
+        Sesh.findById(mongoose.Types.ObjectId(public_mfa)).then(val => {
             if (val == null) resolve(null);
             else if (((new Date()) - val.date) / 1000 / 60 > 15) {
                 console.log((new Date() - val.date) / 1000 / 60 > 15);
