@@ -471,7 +471,7 @@ app.post('/malaria/ans', async (req, res) => {
     }
 });
 
-app.listen(3001, () => {
+app.listen(process.env.PORT, () => {
     console.log('Server is listening on port 3001');
 });
 
