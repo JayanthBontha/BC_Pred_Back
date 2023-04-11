@@ -385,7 +385,7 @@ app.post('/api/malaria', upload.single('image'), async (req, res) => {
                         added_by: req.body.mfa,
                         data: fs.readFileSync(req.file.path),
                         predicted_as: ans > 0.5 ? 1 : 0,
-                        type: "image/" + req.file.path.split('.')[1]
+                        type: "image/" + req.file.path.split('.')[-1]
                     });
 
                     image.save()
