@@ -116,7 +116,7 @@ function is_Email(email_phone) {
 
 
 
-app.post('/login', (req, res) => {
+app.post('/api/login', (req, res) => {
     if (is_Email(req.body.email_phone)) {
         User.exists({ email: req.body.email_phone }).then(boule => {
             if (boule) {
@@ -183,7 +183,7 @@ app.post('/login', (req, res) => {
     }
 });
 
-app.post('/signUp', (req, res) => {
+app.post('/api/signUp', (req, res) => {
     if (is_Email(req.body.email_phone)) {
         // User.exists({ email: req.body.email_phone }).then(boule => {
         //     if (boule == null) {
@@ -301,7 +301,7 @@ app.post('/signUp', (req, res) => {
     }
 });
 
-app.post('/verify', (req, res) => {
+app.post('/api/verify', (req, res) => {
     otp.findById(req.body.temp).then(val => {
         if (val == null) {
             return res.json({ code: "wrong_otp" });
@@ -320,7 +320,7 @@ app.post('/verify', (req, res) => {
 
 });
 
-app.post('/last', (req, res) => {
+app.post('/api/last', (req, res) => {
     console.log("called")
     otp.findOne({ _id: req.body.temp }).then(val => {
         console.log(val);
@@ -348,11 +348,11 @@ app.post('/last', (req, res) => {
 
 
 
-app.post('/logout', (req, res) => {
+app.post('/api/logout', (req, res) => {
     Sesh.deleteOne({ _id: req.body.mfa });
 });
 
-app.post('/changePass', async (req, res) => {
+app.post('/api/changePass', async (req, res) => {
     usrid = await check(req.ip, req.body.mfa);
     const dat = await User.findById(usrid);
     if (usrid != null) {
@@ -371,7 +371,7 @@ app.post('/changePass', async (req, res) => {
     }
 });
 
-app.post('/resetPass', async (req, res) => {
+app.post('/api/resetPass', async (req, res) => {
     const data = await User.find({ email: req.body.email });
     if (data.length != 0) {
         const new_pass = generateRandomString();
@@ -409,7 +409,7 @@ app.post('/resetPass', async (req, res) => {
 });
 
 
-app.post('/malaria', upload.single('image'), async (req, res) => {
+app.post('/api/malaria', upload.single('image'), async (req, res) => {
     usrid = await check(req.ip, req.body.mfa);
     if (usrid != null) {
         sharp(req.file.path)
@@ -452,7 +452,7 @@ app.post('/malaria', upload.single('image'), async (req, res) => {
 
 });
 
-app.post('/malaria/ans', async (req, res) => {
+app.post('/api/malaria/ans', async (req, res) => {
     usrid = await check(req.ip, req.body.mfa);
     if (usrid != null) {
         Image.findOne({ _id: req.body.id }).then(val => {
