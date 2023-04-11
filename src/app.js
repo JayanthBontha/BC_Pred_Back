@@ -71,18 +71,22 @@ function check(request_ip, public_mfa) {
     return new Promise((resolve) => {
         if (public_mfa == null) {
             resolve(null);
+            console.log('null')
         }
         Sesh.findById(public_mfa).then(val => {
             if (val == null) resolve(null);
             else if (((new Date()) - val.date) / 1000 / 60 > 15) {
+                console.log((new Date() - val.date) / 1000 / 60 > 15);
                 Sesh.findByIdAndDelete(public_mfa, (err, doc) => { if (err) console.log(err); });
                 resolve(null);
+                console.log()
             }
             else if (val.ip == request_ip) {
                 Sesh.updateOne({ mfa: public_mfa }, { date: new Date() });
                 resolve(val.user_id);
             }
             else {
+                console.log('not found');
                 resolve(null);
             }
         }).catch(err => { console.log(err); resolve(null); });
