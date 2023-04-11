@@ -59,7 +59,7 @@ let transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASS
+        password: process.env.GMAIL_PASS
     },
     tls: {
         rejectUnauthorized: false
@@ -289,22 +289,26 @@ app.post('/api/verify', (req, res) => {
 app.post('/api/last', (req, res) => {
     console.log("called")
     otp.findOne({ _id: req.body.temp }).then(val => {
-        console.log(val);
-        if (val.flag == true) {
-            otp.findById(req.body.temp).then(val => {
-                if (val.email != null) {
-                    User.create({ email: val.email, name: val.name, insti: val.insti, role: val.role, pass: req.body.pass }).then(val1 => {
-                        otp.deleteOne({ _id: req.body.temp }).catch(err => console.log(err));
-                        return res.json({ code: "successful_signup" });
-                    });
-                }
-                else {
-                    User.create({ phone: val.phone, name: val.name, insti: val.insti, role: val.role, pass: req.body.pass }).then(val1 => {
-                        otp.deleteOne({ _id: req.body.temp }).catch(err => console.log(err));
-                        return res.json({ code: "successful_signup" });
-                    });
-                }
-            });
+        if (val != null) {
+            if (val.flag == true) {
+                otp.findById(req.body.temp).then(val => {
+                    if (val.email != null) {
+                        User.create({ email: val.email, name: val.name, insti: val.insti, role: val.role, pass: req.body.pass }).then(val1 => {
+                            otp.deleteOne({ _id: req.body.temp }).catch(err => console.log(err));
+                            return res.json({ code: "successful_signup" });
+                        });
+                    }
+                    else {
+                        User.create({ phone: val.phone, name: val.name, insti: val.insti, role: val.role, pass: req.body.pass }).then(val1 => {
+                            otp.deleteOne({ _id: req.body.temp }).catch(err => console.log(err));
+                            return res.json({ code: "successful_signup" });
+                        });
+                    }
+                });
+            }
+        }
+        else{
+            return res.json({code:"wrong"});
         }
     });
 });
