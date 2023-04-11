@@ -315,6 +315,7 @@ app.post('/api/last', (req, res) => {
 
 app.post('/api/logout', (req, res) => {
     Sesh.deleteOne({ _id: req.body.mfa });
+    console.log('logging out')
 });
 
 app.post('/api/changePass', async (req, res) => {
@@ -332,6 +333,7 @@ app.post('/api/changePass', async (req, res) => {
     }
     else {
         Sesh.deleteOne({ _id: req.body.mfa }).catch(err => console.log(err));
+        console.log('changepass invalid')
         res.json({ error: 2 });
     }
 });
@@ -412,6 +414,7 @@ app.post('/api/malaria', upload.single('image'), async (req, res) => {
     }
     else {
         Sesh.deleteOne({ _id: req.body.mfa }).catch(err => console.log(err));
+        console.log('malaria invalid')
         res.json({ code: 2 });
     }
 
