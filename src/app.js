@@ -87,7 +87,7 @@ function check(request_ip, public_mfa) {
                 resolve(val.user_id);
             }
             else {
-                console.log('not found');
+                console.log('not found', val.ip, request_ip);
                 resolve(null);
             }
         }).catch(err => { console.log(err); resolve(null); });
