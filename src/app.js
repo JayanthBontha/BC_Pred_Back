@@ -76,8 +76,7 @@ function check(public_mfa) {
 
         Sesh.findOne({ _id: new mongoose.Types.ObjectId(public_mfa) }).then(val => {
             if (val == null) resolve(null);
-            else if (((new Date()) - val.date) / 1000 / 60 > 15) {
-                console.log((new Date() - val.date) / 1000 / 60 > 1);
+            else if (((new Date()) - val.date) / 1000 / 60 > 1) {
                 Sesh.deleteOne({ _id: new mongoose.Types.ObjectId(public_mfa) }).catch(err => console.log(err));
                 resolve(null);
                 console.log('deleting due to timeout');
