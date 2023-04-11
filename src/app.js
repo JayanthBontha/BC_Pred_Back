@@ -51,7 +51,7 @@ mongoose.set('strictQuery', false);
 mongoose.connect(process.env.CONNECTION_STRING, { useNewUrlParser: true });
 
 
-const modelPath = 'C:/Users/91901/Desktop/Code/Cancer-PS/Back-End/src/model/model.json';
+const modelPath = './src/model/model.json';
 const model = tf.loadLayersModel("file://" + modelPath);
 
 
