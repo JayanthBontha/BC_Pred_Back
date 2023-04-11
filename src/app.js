@@ -238,6 +238,7 @@ app.post('/api/signUp', (req, res) => {
                 SNS.publish(params, (err, data) => {
                     if (err) {
                         return res.json({ code: "wrong_phone" });
+                        console.log(err);
                     }
                     else {
                         otp.findOne({ phone: req.body.email_phone }).then(does => {
