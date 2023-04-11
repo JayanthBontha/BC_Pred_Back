@@ -80,7 +80,7 @@ function check(request_ip, public_mfa) {
                 console.log((new Date() - val.date) / 1000 / 60 > 15);
                 Sesh.deleteOne({ _id: new mongoose.Types.ObjectId(public_mfa) }).catch(err => console.log(err));
                 resolve(null);
-                console.log()
+                console.log('deleting due to timeout');
             }
             else if (val.ip == request_ip) {
                 Sesh.updateOne({ _id: new mongoose.Types.ObjectId(public_mfa) }, { date: new Date() });
