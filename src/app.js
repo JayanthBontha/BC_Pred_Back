@@ -76,7 +76,7 @@ function check(public_mfa) {
 
         Sesh.findOne({ _id: new mongoose.Types.ObjectId(public_mfa) }).then(val => {
             if (val == null) resolve(null);
-            else if (((new Date()) - val.date) / 1000 / 60 > 1) {
+            else if (((new Date()) - val.date) / 1000 / 60 > 15) {
                 Sesh.deleteOne({ _id: new mongoose.Types.ObjectId(public_mfa) }).catch(err => console.log(err));
                 resolve(null);
                 console.log('deleting due to timeout');
@@ -184,9 +184,11 @@ app.post('/api/login', (req, res) => {
 });
 
 app.post('/api/signUp', (req, res) => {
+    console.log('first signup called')
     if (is_Email(req.body.email_phone)) {
         User.exists({ email: req.body.email_phone }).then(boule => {
             if (boule == null) {
+                console.log('email signup called')
                 const new_pass = generateRandomNumber();
 
                 let mailOptions = {
@@ -217,6 +219,7 @@ app.post('/api/signUp', (req, res) => {
             }
 
             else {
+                console.log('email exists')
                 return res.json({ code: "email_exists" });
             }
         });
@@ -224,6 +227,7 @@ app.post('/api/signUp', (req, res) => {
     else {
         User.exists({ phone: req.body.email_phone }).then(boule => {
             if (boule == null) {
+                console.log('phone signup called')
                 new_pass = generateRandomNumber();
                 const params = {
                     Message: 'Your OTP to login is ' + new_pass,
@@ -237,8 +241,8 @@ app.post('/api/signUp', (req, res) => {
                 };
                 SNS.publish(params, (err, data) => {
                     if (err) {
-                        return res.json({ code: "wrong_phone" });
                         console.log(err);
+                        return res.json({ code: "wrong_phone" });
                     }
                     else {
                         otp.findOne({ phone: req.body.email_phone }).then(does => {
@@ -256,7 +260,8 @@ app.post('/api/signUp', (req, res) => {
                 });
             }
             else {
-                return res.json({ code: "phone_exists" });
+                console.log('phone exists')
+                return res.json({ code: "number_exists" });
             }
         })
     }
@@ -310,8 +315,7 @@ app.post('/api/last', (req, res) => {
 
 
 app.post('/api/logout', (req, res) => {
-    Sesh.deleteOne({ _id: req.body.mfa });
-    console.log('logging out')
+    Sesh.deleteOne({ _id: new mongoose.Types.ObjectId(req.body.mfa) });
 });
 
 app.post('/api/changePass', async (req, res) => {
