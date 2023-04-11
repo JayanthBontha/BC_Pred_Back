@@ -11,11 +11,11 @@ const otp = require('./schemas/Temp');
 const nodemailer = require('nodemailer');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const AWS = require('aws-sdk');
-const creds = new AWS.Credentials({
+const SNS = new AWS.SNS({
     accessKeyId: process.env.ACCESS_KEY,
-    secretAccessKey: process.env.PASS
+    secretAccessKey: process.env.PASS,
+    region: 'ap-south-1'
 });
-const SNS = new AWS.SNS({ creds, region: 'ap-south-1' });
 const tf = require('@tensorflow/tfjs-node');
 const fs = require('fs');
 const sharp = require('sharp');
