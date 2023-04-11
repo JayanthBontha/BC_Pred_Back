@@ -11,7 +11,10 @@ const otp = require('./schemas/Temp');
 const nodemailer = require('nodemailer');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const AWS = require('aws-sdk');
-const creds = new AWS.SharedIniFileCredentials({ profile: 'default' });
+const creds = new AWS.Credentials({
+    accessKeyId: process.env.ACCESS_KEY,
+    secretAccessKey: process.env.PASS
+});
 const SNS = new AWS.SNS({ creds, region: 'ap-south-1' });
 const tf = require('@tensorflow/tfjs-node');
 const fs = require('fs');
@@ -472,13 +475,13 @@ app.listen(3001, () => {
     console.log('Server is listening on port 3001');
 });
 
-Image.findOne({ _id: '643506f69f5496c90491190d' }).then(image => {
-    fs.writeFile('./Back-End/example/' + generateRandomString() + '.' + image.type, image.data, (err) => {
-        if (err) {
-            console.log(err);
-            return;
-        }
+// Image.findOne({ _id: '643506f69f5496c90491190d' }).then(image => {
+//     fs.writeFile('./Back-End/example/' + generateRandomString() + '.' + image.type, image.data, (err) => {
+//         if (err) {
+//             console.log(err);
+//             return;
+//         }
 
-        console.log('Image saved!');
-    });
-});
+//         console.log('Image saved!');
+//     });
+// });
