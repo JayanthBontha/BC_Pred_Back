@@ -59,10 +59,7 @@ let transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: process.env.GMAIL_USER,
-        password: process.env.GMAIL_PASS
-    },
-    tls: {
-        rejectUnauthorized: false
+        pass: process.env.GMAIL_PASS
     }
 });
 
