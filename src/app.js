@@ -185,43 +185,6 @@ app.post('/api/login', (req, res) => {
 
 app.post('/api/signUp', (req, res) => {
     if (is_Email(req.body.email_phone)) {
-        // User.exists({ email: req.body.email_phone }).then(boule => {
-        //     if (boule == null) {
-        //         const new_pass = generateRandomNumber();
-        //         let transporter = nodemailer.createTransport({
-        //             host: 'smtp.elasticemail.com',
-        //             port: 2525,
-        //             secure: false,
-        //             auth: {
-        //                 user: 'goglepixstoar@gmail.com',
-        //                 pass: '12EFEA58156C713AD256A110518A89636C02'
-        //             }
-        //         });
-
-        //         let mailOptions = {
-        //             from: '"Breast Cancer Prediction" <goglepixstoar@gmail.com>',
-        //             to: req.body.email_phone,
-        //             subject: 'Account Creation',
-        //             text: "You have recently created an account with us.\nYour Verification OTP is " + new_pass + "\nIf you haven't made an account please contact site administrator."
-        //         };
-
-        //         transporter.sendMail(mailOptions, (error, info) => {
-        //             if (error) {
-        //                 console.log(error);
-        //                 res.json({ code: 'wrong_email' })
-        //             }
-        //             else {
-        //                 otp.create({ email: req.body.email_phone, otp: new_pass, flag: false, name: req.body.name, insti: req.body.insti, role: req.body.role }).then(val => {
-        //                     res.json({ code: 'successful_email', temp: val._id });
-        //                 });
-        //             }
-        //         })
-        //     }
-
-        //     else {
-        //         return res.json({ code: "email_exists" });
-        //     }
-        // });
         User.exists({ email: req.body.email_phone }).then(boule => {
             if (boule == null) {
                 const new_pass = generateRandomNumber();
@@ -239,9 +202,6 @@ app.post('/api/signUp', (req, res) => {
                         res.json({ code: 'wrong_email' })
                     }
                     else {
-                        // otp.create({ email: req.body.email_phone, otp: new_pass, flag: false, name: req.body.name, insti: req.body.insti, role: req.body.role }).then(val => {
-                        //     res.json({ code: 'successful_email', temp: val._id });
-                        // });
                         otp.findOne({ email: req.body.email_phone }).then(does => {
                             if (does == null) {
                                 otp.create({ email: req.body.email_phone, otp: new_pass, flag: false, name: req.body.name, insti: req.body.insti, role: req.body.role }).then(val => {
