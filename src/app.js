@@ -472,7 +472,7 @@ app.post('/malaria/ans', async (req, res) => {
 });
 
 app.listen(process.env.PORT, () => {
-    console.log('Server is listening on port 3001');
+    console.log('Server is listening on port ',process.env.PORT);
 });
 
 // Image.findOne({ _id: '643506f69f5496c90491190d' }).then(image => {
