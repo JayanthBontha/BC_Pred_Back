@@ -5,11 +5,6 @@ const authenticator = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         required: true
     },
-    ip: {
-        type: String,
-        required: true
-    },
-
     date: {
         type: Date,
         required: true

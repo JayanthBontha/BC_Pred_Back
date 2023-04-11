@@ -58,8 +58,8 @@ const model = tf.loadLayersModel("file://" + modelPath);
 let transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'bc.predict@gmail.com',
-        pass: 'xqfrpccrckwgcipp'
+        user: process.env.GMAIL_USER,
+        pass: process.env.GMAIL_PASS
     },
     tls: {
         rejectUnauthorized: false
@@ -67,7 +67,7 @@ let transporter = nodemailer.createTransport({
 });
 
 
-function check(request_ip, public_mfa) {
+function check(public_mfa) {
     return new Promise((resolve) => {
         if (public_mfa == null) {
             resolve(null);
@@ -77,18 +77,14 @@ function check(request_ip, public_mfa) {
         Sesh.findOne({ _id: new mongoose.Types.ObjectId(public_mfa) }).then(val => {
             if (val == null) resolve(null);
             else if (((new Date()) - val.date) / 1000 / 60 > 15) {
-                console.log((new Date() - val.date) / 1000 / 60 > 15);
+                console.log((new Date() - val.date) / 1000 / 60 > 1);
                 Sesh.deleteOne({ _id: new mongoose.Types.ObjectId(public_mfa) }).catch(err => console.log(err));
                 resolve(null);
                 console.log('deleting due to timeout');
             }
-            else if (val.ip == request_ip) {
+            else {
                 Sesh.updateOne({ _id: new mongoose.Types.ObjectId(public_mfa) }, { date: new Date() });
                 resolve(val.user_id);
-            }
-            else {
-                console.log('not found', val.ip, request_ip);
-                resolve(null);
             }
         }).catch(err => { console.log(err); resolve(null); });
     });
@@ -134,7 +130,7 @@ app.post('/api/login', (req, res) => {
                     }
 
                     else {
-                        Sesh.create({ user_id: temp[0]._id, ip: req.ip, date: new Date() })
+                        Sesh.create({ user_id: temp[0]._id, date: new Date() })
                             .then(val => {
                                 return res.json({
                                     auth: 1,
@@ -166,7 +162,7 @@ app.post('/api/login', (req, res) => {
                     }
 
                     else {
-                        Sesh.create({ user_id: temp[0]._id, ip: req.ip, date: new Date() })
+                        Sesh.create({ user_id: temp[0]._id, date: new Date() })
                             .then(val => {
                                 return res.json({
                                     auth: 1,
@@ -320,7 +316,7 @@ app.post('/api/logout', (req, res) => {
 });
 
 app.post('/api/changePass', async (req, res) => {
-    usrid = await check(req.ip, req.body.mfa);
+    usrid = await check(req.body.mfa);
     const dat = await User.findById(usrid);
     if (usrid != null) {
         if (dat.pass === req.body.oldpass) {
@@ -378,7 +374,7 @@ app.post('/api/resetPass', async (req, res) => {
 
 
 app.post('/api/malaria', upload.single('image'), async (req, res) => {
-    usrid = await check(req.ip, req.body.mfa);
+    usrid = await check(req.body.mfa);
     if (usrid != null) {
         sharp(req.file.path)
             .resize(50, 50)
@@ -422,7 +418,7 @@ app.post('/api/malaria', upload.single('image'), async (req, res) => {
 });
 
 app.post('/api/malaria/ans', async (req, res) => {
-    usrid = await check(req.ip, req.body.mfa);
+    usrid = await check(req.body.mfa);
     if (usrid != null) {
         Image.findOne({ _id: req.body.id }).then(val => {
             if (val != null) {
