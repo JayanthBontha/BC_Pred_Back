@@ -184,11 +184,9 @@ app.post('/api/login', (req, res) => {
 });
 
 app.post('/api/signUp', (req, res) => {
-    console.log('first signup called')
     if (is_Email(req.body.email_phone)) {
         User.exists({ email: req.body.email_phone }).then(boule => {
             if (boule == null) {
-                console.log('email signup called')
                 const new_pass = generateRandomNumber();
 
                 let mailOptions = {
@@ -219,7 +217,6 @@ app.post('/api/signUp', (req, res) => {
             }
 
             else {
-                console.log('email exists')
                 return res.json({ code: "email_exists" });
             }
         });
@@ -227,7 +224,6 @@ app.post('/api/signUp', (req, res) => {
     else {
         User.exists({ phone: req.body.email_phone }).then(boule => {
             if (boule == null) {
-                console.log('phone signup called')
                 new_pass = generateRandomNumber();
                 const params = {
                     Message: 'Your OTP to login is ' + new_pass,
@@ -260,7 +256,6 @@ app.post('/api/signUp', (req, res) => {
                 });
             }
             else {
-                console.log('phone exists')
                 return res.json({ code: "number_exists" });
             }
         })
@@ -287,7 +282,6 @@ app.post('/api/verify', (req, res) => {
 });
 
 app.post('/api/last', (req, res) => {
-    console.log("called")
     otp.findOne({ _id: req.body.temp }).then(val => {
         if (val != null) {
             if (val.flag == true) {
@@ -307,8 +301,8 @@ app.post('/api/last', (req, res) => {
                 });
             }
         }
-        else{
-            return res.json({code:"wrong"});
+        else {
+            return res.json({ code: "wrong" });
         }
     });
 });
@@ -337,7 +331,6 @@ app.post('/api/changePass', async (req, res) => {
     }
     else {
         Sesh.deleteOne({ _id: req.body.mfa }).catch(err => console.log(err));
-        console.log('changepass invalid')
         res.json({ error: 2 });
     }
 });
@@ -391,20 +384,19 @@ app.post('/api/malaria', upload.single('image'), async (req, res) => {
                 let reshapedTensor = tensor.reshape([1, 50, 50, 3]).div(255);
                 model.then(mod => {
                     let ans = mod.predict(reshapedTensor).dataSync()[0];
+                    let wtv = req.file.path.split('.');
                     const image = new Image({
-                        added_by: req.body.mfa,
+                        added_by: usrid,
                         data: fs.readFileSync(req.file.path),
                         predicted_as: ans > 0.5 ? 1 : 0,
-                        type: "image/" + req.file.path.split('.')[-1]
+                        type: "image/" + wtv[wtv.length - 1]
                     });
 
                     image.save()
                         .then((savedImage) => {
-                            console.log("Image saved with ID: ", savedImage._id);
                             res.json({ code: ans > 0.5 ? 1 : 0, id: savedImage._id });
                         })
                         .catch((error) => {
-                            console.error("Error saving image: ", error);
                             res.json({ code: 3 });
                         });
 
@@ -418,7 +410,6 @@ app.post('/api/malaria', upload.single('image'), async (req, res) => {
     }
     else {
         Sesh.deleteOne({ _id: req.body.mfa }).catch(err => console.log(err));
-        console.log('malaria invalid')
         res.json({ code: 2 });
     }
 
@@ -443,6 +434,17 @@ app.post('/api/malaria/ans', async (req, res) => {
     }
 });
 
+app.post('/api/malaria/data', async (req, res) => {
+    usrid = await check(req.body.mfa);
+    if (usrid != null) {
+        Image.find({ added_by: usrid }).then(val => {
+            res.json({ code: 1, array: val });
+        });
+    }
+    else {
+        res.json({ code: 0 });
+    }
+});
 app.listen(3001, () => {
     console.log('Server is listening on port 3001');
 });
