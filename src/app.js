@@ -449,6 +449,7 @@ app.listen(3001, () => {
     console.log('Server is listening on port 3001');
 });
 
+
 // Image.findOne({ _id: '643506f69f5496c90491190d' }).then(image => {
 //     fs.writeFile('./Back-End/example/' + generateRandomString() + '.' + image.type, image.data, (err) => {
 //         if (err) {
