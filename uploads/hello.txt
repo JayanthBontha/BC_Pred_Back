@@ -1,0 +1,30 @@
+Machine Learning for Malaria Prediction: Creating a Web App with JavaScript
+
+Malaria is a life-threatening disease caused by parasites transmitted to people through mosquito bites. It is a major public health concern in many parts of the world, particularly in tropical and subtropical regions leading to approximately a million deaths every year.
+Early diagnosis and proper treatment are crucial.
+
+Machine learning has shown promising results in predicting malaria from various data sources but we will be using images of thin blood smears.
+In this article, we will develop a web application that uses machine learning to predict malaria with MERN stack only. 
+We will build the machine learning model with tensorflow, integrating it with a web application, and deploying it to Railway.app. By the end of this article, you will have a better understanding of how machine learning can be applied to real-world problems.
+
+
+The data:
+We will be using 13780 images of infected patients and 13780 images of healthy patients.
+The pictures are in various sizes and have to be preprocessed before being fed to the model.
+The data set is linked below
+https://www.kaggle.com/datasets/iarunava/cell-images-for-detecting-malaria/code?datasetId=87153&sortBy=voteCount
+
+The model:
+First, all the pre-requisite models like tensorflow, tensorflowjs, numpy, pandas, cv2 are imported.
+We set up the environment and download the dataset.
+For the pre-processing part we resize all images to 50x50 and we upload 2 variations:
+1.original
+2.rotated by 45
+3.rotated by 75
+
+This is to make the model familiar with all kind of input.
+After this we normalize the input so that all values are between 0 and 1.This is done by dividing the pixel values by 255
+
+Now we create the sequential model by defining all its layers:
+1. The first layer is a convulation layer that takes input with the shape 50x50x3. We have the third dimension as each pixel has 3 values(RGB)
+2.

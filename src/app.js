@@ -22,22 +22,13 @@ const sharp = require('sharp');
 const multer = require('multer');
 const upload = multer({
     storage: multer.diskStorage({
-        destination: function (req, file, cb) {
-            cb(null, './uploads/')
-        },
-        filename: function (req, file, cb) {
-            cb(null, file.originalname)
-        }
+        destination: function (req, file, cb) { cb(null, './uploads/') },
+        filename: function (req, file, cb) { cb(null, file.originalname) }
     }),
-    limits: {
-        fileSize: 1024 * 1024 * 10
-    },
+    limits: { fileSize: 1024 * 1024 * 10 },
     fileFilter: function (req, file, cb) {
-        if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
-            cb(null, true);
-        } else {
-            cb(new Error('Invalid file type'));
-        }
+        if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') cb(null, true);
+        else cb(new Error('Invalid file type'));
     }
 });
 
@@ -113,8 +104,6 @@ function is_Email(email_phone) {
     if (email_phone.includes('@')) return true;
     else return false;
 }
-
-
 
 app.post('/api/login', (req, res) => {
     if (is_Email(req.body.email_phone)) {
@@ -308,10 +297,6 @@ app.post('/api/last', (req, res) => {
 });
 
 
-
-
-
-
 app.post('/api/logout', (req, res) => {
     Sesh.deleteOne({ _id: new mongoose.Types.ObjectId(req.body.mfa) });
 });
@@ -445,10 +430,10 @@ app.post('/api/malaria/data', async (req, res) => {
         res.json({ code: 0 });
     }
 });
+
 app.listen(3001, () => {
     console.log('Server is listening on port 3001');
 });
-
 
 // Image.findOne({ _id: '643506f69f5496c90491190d' }).then(image => {
 //     fs.writeFile('./Back-End/example/' + generateRandomString() + '.' + image.type, image.data, (err) => {
