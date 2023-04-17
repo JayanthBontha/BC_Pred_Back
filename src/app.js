@@ -216,7 +216,7 @@ app.post('/api/signUp', (req, res) => {
                 new_pass = generateRandomNumber();
                 const params = {
                     Message: 'Your OTP to login is ' + new_pass,
-                    PhoneNumber: req.body.email_phone,
+                    PhoneNumber: "+91" + req.body.email_phone,
                     MessageAttributes: {
                         'AWS.SNS.SMS.SMSType': {
                             DataType: 'String',
