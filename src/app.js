@@ -20,9 +20,22 @@ const tf = require('@tensorflow/tfjs-node');
 const fs = require('fs');
 const sharp = require('sharp');
 const multer = require('multer');
+const onnx = require('onnxjs-node');
 const upload = multer({
     storage: multer.diskStorage({
         destination: function (req, file, cb) { cb(null, './uploads/') },
+        filename: function (req, file, cb) { cb(null, file.originalname) }
+    }),
+    limits: { fileSize: 1024 * 1024 * 10 },
+    fileFilter: function (req, file, cb) {
+        if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') cb(null, true);
+        else cb(new Error('Invalid file type'));
+    }
+});
+
+const upload2 = multer({
+    storage: multer.diskStorage({
+        destination: function (req, file, cb) { cb(null, './tiles/') },
         filename: function (req, file, cb) { cb(null, file.originalname) }
     }),
     limits: { fileSize: 1024 * 1024 * 10 },
@@ -42,8 +55,14 @@ mongoose.set('strictQuery', false);
 mongoose.connect(process.env.CONNECTION_STRING, { useNewUrlParser: true });
 
 
-const modelPath = './src/model/model.json';
+const modelPath = './src/model/malaria/model.json';
+// const modelPath2 = './src/model/beast/best.onnx';
+// const modelBuffer = fs.readFileSync("file://"+"C/Users/91901/Desktop/Code/Cancer-PS/Back-End/src/model/beast/best.onnx");
 const model = tf.loadLayersModel("file://" + modelPath);
+const onxx_session = new onnx.InferenceSession();
+// onxx_session.loadModel("./src/model/beast/best.onnx").then(() => {
+//     console.log("Model Loaded");
+// });
 
 
 let transporter = nodemailer.createTransport({
@@ -106,6 +125,7 @@ function is_Email(email_phone) {
 }
 
 app.post('/api/login', (req, res) => {
+    console.log("login called");
     if (is_Email(req.body.email_phone)) {
         User.exists({ email: req.body.email_phone }).then(boule => {
             if (boule) {
@@ -359,7 +379,7 @@ app.post('/api/resetPass', async (req, res) => {
 
 
 app.post('/api/malaria', upload.single('image'), async (req, res) => {
-    usrid = await check(req.body.mfa);
+    let usrid = await check(req.body.mfa);
     if (usrid != null) {
         sharp(req.file.path)
             .resize(50, 50)
@@ -431,6 +451,32 @@ app.post('/api/malaria/data', async (req, res) => {
     }
 });
 
+app.post('/api/tile', upload2.single('image'), async (req, res) => {
+    // let usrid = await check(req.body.mfa);
+    let usrid = 1;
+    console.log(usrid, req.body.mfa);
+    if (usrid != null) {
+        sharp(req.file.path)
+            .resize(1280, 1280)
+            .toBuffer()
+            .then((data) => {
+                let tensor = tf.node.decodeImage(data, 3);
+                tensor = tensor.reshape([1, 1280, 1280, 3]).toFloat();
+                model2.then((mod) => {
+                    mod.executeAsync(tensor).then((output) => {
+                        const predictions = Array.from(output[2].dataSync());
+                        console.log(predictions);
+                    });
+                });
+            });
+    }
+
+    else {
+        Sesh.deleteOne({ _id: req.body.mfa }).catch(err => console.log(err));
+        res.json({ code: 2 });
+    }
+
+});
 app.listen(3001, () => {
     console.log('Server is listening on port 3001');
 });
