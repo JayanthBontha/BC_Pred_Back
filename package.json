@@ -22,7 +22,6 @@
     "npm": "^9.7.2",
     "onnxjs": "^0.1.8",
     "onnxjs-node": "^1.4.0",
-    "onnxruntime" : "^1.15.0",
     "sharp": "^0.32.0"
   }
 }
