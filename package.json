@@ -20,8 +20,8 @@
     "nodemailer": "^6.9.1",
     "nodemon": "^2.0.22",
     "npm": "^9.7.2",
-    "onnxjs": "^0.1.8",
-    "onnxjs-node": "^1.4.0",
+    "request": "^2.88.2",
+    "requests": "^0.3.0",
     "sharp": "^0.32.0"
   }
 }

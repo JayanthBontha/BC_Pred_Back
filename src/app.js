@@ -11,6 +11,7 @@ const otp = require('./schemas/Temp');
 const nodemailer = require('nodemailer');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const AWS = require('aws-sdk');
+const request = require('request');
 const SNS = new AWS.SNS({
     accessKeyId: process.env.ACCESS_KEY,
     secretAccessKey: process.env.PASS,
@@ -20,7 +21,6 @@ const tf = require('@tensorflow/tfjs-node');
 const fs = require('fs');
 const sharp = require('sharp');
 const multer = require('multer');
-const onnx = require('onnxjs-node');
 const upload = multer({
     storage: multer.diskStorage({
         destination: function (req, file, cb) { cb(null, './uploads/') },
@@ -33,21 +33,11 @@ const upload = multer({
     }
 });
 
-const upload2 = multer({
-    storage: multer.diskStorage({
-        destination: function (req, file, cb) { cb(null, './tiles/') },
-        filename: function (req, file, cb) { cb(null, file.originalname) }
-    }),
-    limits: { fileSize: 1024 * 1024 * 10 },
-    fileFilter: function (req, file, cb) {
-        if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') cb(null, true);
-        else cb(new Error('Invalid file type'));
-    }
-});
+const upload2 = multer();
 
 
 app.use(parser.json());
-app.use(cors());
+app.use(cors()) ;
 
 
 
@@ -56,13 +46,8 @@ mongoose.connect(process.env.CONNECTION_STRING, { useNewUrlParser: true });
 
 
 const modelPath = './src/model/malaria/model.json';
-// const modelPath2 = './src/model/beast/best.onnx';
-// const modelBuffer = fs.readFileSync("file://"+"C/Users/91901/Desktop/Code/Cancer-PS/Back-End/src/model/beast/best.onnx");
 const model = tf.loadLayersModel("file://" + modelPath);
-const onxx_session = new onnx.InferenceSession();
-// onxx_session.loadModel("./src/model/beast/best.onnx").then(() => {
-//     console.log("Model Loaded");
-// });
+
 
 
 let transporter = nodemailer.createTransport({
@@ -161,6 +146,7 @@ app.post('/api/login', (req, res) => {
     else {
         User.exists({ phone: req.body.email_phone }).then(boule => {
             if (boule) {
+                console.log("exisits");
                 User.find({ phone: req.body.email_phone, pass: req.body.pass }).then(temp => {
                     if (temp.length == 0) {
                         return res.json({
@@ -451,43 +437,64 @@ app.post('/api/malaria/data', async (req, res) => {
     }
 });
 
+const axios = require('axios');
+
 app.post('/api/tile', upload2.single('image'), async (req, res) => {
     // let usrid = await check(req.body.mfa);
     let usrid = 1;
-    console.log(usrid, req.body.mfa);
     if (usrid != null) {
-        sharp(req.file.path)
-            .resize(1280, 1280)
-            .toBuffer()
-            .then((data) => {
-                let tensor = tf.node.decodeImage(data, 3);
-                tensor = tensor.reshape([1, 1280, 1280, 3]).toFloat();
-                model2.then((mod) => {
-                    mod.executeAsync(tensor).then((output) => {
-                        const predictions = Array.from(output[2].dataSync());
-                        console.log(predictions);
-                    });
-                });
-            });
-    }
+        const formData = new FormData();
+        formData.append('image', req.file.buffer, {
+            filename: req.file.originalname
+        });
 
-    else {
+        const options = {
+            method: 'post',
+            url: process.env.FLASK_URL + 'tile',
+            data: formData,
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+            responseType: 'arraybuffer',
+        };
+
+        // Send the image to the Flask app
+        axios(options)
+            .then(response => {
+                // Handle success response from Flask app
+                const headers = response.headers;
+                const ext = headers['ext'];
+                const all = headers['all'];
+                const n = headers['n'];
+                const w = headers['w'];
+                const m = headers['m'];
+                const s = headers['s'];
+                const imageData = Buffer.from(response.data, 'binary').toString('base64');
+
+                // Create your own logic to handle the response data and headers
+                // For example, you can send them as a JSON response
+                res.json({
+                    ext,
+                    all,
+                    n,
+                    w,
+                    m,
+                    s,
+                    imageData
+                });
+            })
+            .catch(error => {
+                // Handle any errors that occurred during the request
+                console.error('Error:', error);
+                res.status(500).send('Error occurred');
+            });
+    } else {
         Sesh.deleteOne({ _id: req.body.mfa }).catch(err => console.log(err));
         res.json({ code: 2 });
     }
-
 });
+
+
 app.listen(3001, () => {
     console.log('Server is listening on port 3001');
 });
-
-// Image.findOne({ _id: '643506f69f5496c90491190d' }).then(image => {
-//     fs.writeFile('./Back-End/example/' + generateRandomString() + '.' + image.type, image.data, (err) => {
-//         if (err) {
-//             console.log(err);
-//             return;
-//         }
-
-//         console.log('Image saved!');
-//     });
-// });
