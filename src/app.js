@@ -11,6 +11,7 @@ const otp = require('./schemas/Temp');
 const nodemailer = require('nodemailer');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const AWS = require('aws-sdk');
+const axios = require('axios');
 const request = require('request');
 const SNS = new AWS.SNS({
     accessKeyId: process.env.ACCESS_KEY,
@@ -437,7 +438,6 @@ app.post('/api/malaria/data', async (req, res) => {
     }
 });
 
-const axios = require('axios');
 
 app.post('/api/tile', upload2.single('image'), async (req, res) => {
     // let usrid = await check(req.body.mfa);
