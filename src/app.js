@@ -22,6 +22,7 @@ const tf = require('@tensorflow/tfjs-node');
 const fs = require('fs');
 const sharp = require('sharp');
 const multer = require('multer');
+const { error } = require('console');
 const upload = multer({
     storage: multer.diskStorage({
         destination: function (req, file, cb) { cb(null, './uploads/') },
@@ -38,7 +39,7 @@ const upload2 = multer();
 
 
 app.use(parser.json());
-app.use(cors()) ;
+app.use(cors());
 
 
 
@@ -69,8 +70,15 @@ function check(public_mfa) {
             resolve(null);
             console.log('null')
         }
+        let iid;
+        try {
+            iid = new mongoose.Types.ObjectId(public_mfa);
+        }
+        catch {
+            resolve(null);
+        }
 
-        Sesh.findOne({ _id: new mongoose.Types.ObjectId(public_mfa) }).then(val => {
+        Sesh.findOne({ _id: iid }).then(val => {
             if (val == null) resolve(null);
             else if (((new Date()) - val.date) / 1000 / 60 > 15) {
                 Sesh.deleteOne({ _id: new mongoose.Types.ObjectId(public_mfa) }).catch(err => console.log(err));
@@ -305,7 +313,14 @@ app.post('/api/last', (req, res) => {
 
 
 app.post('/api/logout', (req, res) => {
-    Sesh.deleteOne({ _id: new mongoose.Types.ObjectId(req.body.mfa) });
+    let eg;
+    try {
+        eg = new mongoose.Types.ObjectId(req.body.mfa);
+        Sesh.deleteOne({ _id: eg }).catch(err => console.log(err));
+    }
+    catch {
+        
+    }
 });
 
 app.post('/api/changePass', async (req, res) => {
@@ -438,62 +453,16 @@ app.post('/api/malaria/data', async (req, res) => {
     }
 });
 
-
-app.post('/api/tile', upload2.single('image'), async (req, res) => {
-    // let usrid = await check(req.body.mfa);
-    let usrid = 1;
-    if (usrid != null) {
-        const formData = new FormData();
-        formData.append('image', req.file.buffer, {
-            filename: req.file.originalname
-        });
-
-        const options = {
-            method: 'post',
-            url: process.env.FLASK_URL + 'tile',
-            data: formData,
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-            responseType: 'arraybuffer',
-        };
-
-        // Send the image to the Flask app
-        axios(options)
-            .then(response => {
-                // Handle success response from Flask app
-                const headers = response.headers;
-                const ext = headers['ext'];
-                const all = headers['all'];
-                const n = headers['n'];
-                const w = headers['w'];
-                const m = headers['m'];
-                const s = headers['s'];
-                const imageData = Buffer.from(response.data, 'binary').toString('base64');
-
-                // Create your own logic to handle the response data and headers
-                // For example, you can send them as a JSON response
-                res.json({
-                    ext,
-                    all,
-                    n,
-                    w,
-                    m,
-                    s,
-                    imageData
-                });
-            })
-            .catch(error => {
-                // Handle any errors that occurred during the request
-                console.error('Error:', error);
-                res.status(500).send('Error occurred');
-            });
-    } else {
-        Sesh.deleteOne({ _id: req.body.mfa }).catch(err => console.log(err));
-        res.json({ code: 2 });
-    }
+app.post('/api/validity', async (req, res) => {
+    check(req.body.mfa).then(val => {
+        if (val != null) {
+            res.json({ code: 1 });
+        }
+        else {
+            res.json({ code: 0 });
+        }
+    });
 });
-
 
 app.listen(3001, () => {
     console.log('Server is listening on port 3001');
