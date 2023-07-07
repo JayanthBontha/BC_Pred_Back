@@ -39,12 +39,9 @@ const upload2 = multer();
 
 
 app.use(parser.json());
-app.use((req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", "https://front-w3hi.onrender.com");
-    res.setHeader("Access-Control-Allow-Methods", "POST, GET");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-    next();
-  })
+app.use(cors({
+    origin: ['https://front-w3hi.onrender.com']
+}))
 
 
 mongoose.set('strictQuery', false);
