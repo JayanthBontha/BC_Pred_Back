@@ -4,6 +4,9 @@ const path = require('path')
 const cors = require('cors');
 const parser = require('body-parser');
 const app = express();
+app.use(cors({
+    origin: ['https://front-w3hi.onrender.com']
+}))
 const User = require('./schemas/User');
 const Sesh = require('./schemas/Security');
 const Image = require('./schemas/Image');
@@ -39,9 +42,6 @@ const upload2 = multer();
 
 
 app.use(parser.json());
-app.use(cors({
-    origin: ['https://front-w3hi.onrender.com']
-}))
 
 
 mongoose.set('strictQuery', false);
