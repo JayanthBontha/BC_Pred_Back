@@ -4,10 +4,11 @@ const path = require('path')
 const cors = require('cors');
 const parser = require('body-parser');
 const app = express();
-app.options('https://front-w3hi.onrender.com', cors())
 app.use(cors({
-    origin: ['https://front-w3hi.onrender.com']
-}))
+    origin: '*',
+    methods: ['GET', 'POST'],
+    allowedHeaders: 'Content-Type'
+}));
 const User = require('./schemas/User');
 const Sesh = require('./schemas/Security');
 const Image = require('./schemas/Image');
