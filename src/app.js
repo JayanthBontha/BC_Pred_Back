@@ -39,7 +39,7 @@ const upload2 = multer();
 
 
 app.use(parser.json());
-app.use(cors());
+app.use(cors({origin:["https://front-w3hi.onrender.com/"],methods:["GET","POST"],credentials:true}))
 
 
 
