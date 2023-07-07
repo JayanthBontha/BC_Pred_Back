@@ -39,7 +39,11 @@ const upload2 = multer();
 
 
 app.use(parser.json());
-app.use(cors({origin:["https://front-w3hi.onrender.com"],methods:["GET","POST"],credentials:true}))
+app.use(cors({
+    origin: ["https://front-w3hi.onrender.com"],
+    methods: ["GET", "POST"],
+    credentials: true
+}))
 
 
 
@@ -120,6 +124,7 @@ function is_Email(email_phone) {
 
 app.post('/api/login', (req, res) => {
     console.log("login called");
+    res.header('Access-Control-Allow-Origin', 'https://front-w3hi.onrender.com');
     if (is_Email(req.body.email_phone)) {
         User.exists({ email: req.body.email_phone }).then(boule => {
             if (boule) {
@@ -319,7 +324,7 @@ app.post('/api/logout', (req, res) => {
         Sesh.deleteOne({ _id: eg }).catch(err => console.log(err));
     }
     catch {
-        
+
     }
 });
 
