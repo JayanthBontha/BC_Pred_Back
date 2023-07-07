@@ -39,7 +39,7 @@ const upload2 = multer();
 
 
 app.use(parser.json());
-app.use(cors());
+app.use(cors({origin: '*'}));
 
 
 
