@@ -465,5 +465,5 @@ app.post('/api/validity', async (req, res) => {
 });
 
 app.listen(3001, () => {
-    console.log('Server is listening on port 3001');
+    console.log('Server is listening on port 3001 ');
 });
