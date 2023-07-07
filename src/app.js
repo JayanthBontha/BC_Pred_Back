@@ -4,11 +4,12 @@ const path = require('path')
 const cors = require('cors');
 const parser = require('body-parser');
 const app = express();
-app.use(cors({
-    origin: '*',
-    methods: ['GET', 'POST'],
-    allowedHeaders: 'Content-Type'
-}));
+app.use(function (req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', '*');
+    res.header('Access-Control-Allow-Headers', '*');
+    next();
+});
 const User = require('./schemas/User');
 const Sesh = require('./schemas/Security');
 const Image = require('./schemas/Image');
