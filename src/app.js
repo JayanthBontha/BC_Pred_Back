@@ -4,7 +4,7 @@ const path = require('path')
 const cors = require('cors');
 const parser = require('body-parser');
 const app = express();
-app.options('*', cors())
+app.options('https://front-w3hi.onrender.com', cors())
 app.use(cors({
     origin: ['https://front-w3hi.onrender.com']
 }))
