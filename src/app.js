@@ -14,7 +14,6 @@ const otp = require('./schemas/Temp');
 const nodemailer = require('nodemailer');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const AWS = require('aws-sdk');
-const axios = require('axios');
 const request = require('request');
 const SNS = new AWS.SNS({
     accessKeyId: process.env.ACCESS_KEY,
@@ -231,6 +230,7 @@ app.post('/api/signUp', (req, res) => {
         User.exists({ phone: req.body.email_phone }).then(boule => {
             if (boule == null) {
                 new_pass = generateRandomNumber();
+                console.log("+91"+req.body.email_phone)
                 const params = {
                     Message: 'Your OTP to login is ' + new_pass,
                     PhoneNumber: "+91" + req.body.email_phone,
